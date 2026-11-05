@@ -40,6 +40,48 @@ function _applyGoogleUser() {
     setTimeout(() => { if (_googleUser) _applyGoogleUserNow(); }, 900);
 }
 
+function updateGoogleAvatar(picture, name, email) {
+    const avatarEl = document.getElementById('google-avatar');
+    const fallbackEl = document.getElementById('google-avatar-fallback');
+    const initialEl = document.getElementById('google-avatar-initial');
+
+    const displayName = (name || email || 'User').trim();
+    const initial = displayName.charAt(0).toUpperCase() || 'U';
+    if (initialEl) initialEl.textContent = initial;
+
+    if (!avatarEl) {
+        if (fallbackEl) fallbackEl.style.display = 'flex';
+        return;
+    }
+
+    avatarEl.setAttribute('referrerpolicy', 'no-referrer');
+    avatarEl.referrerPolicy = 'no-referrer';
+    avatarEl.alt = '';
+
+    const showAvatar = (src) => {
+        avatarEl.onload = function () {
+            avatarEl.style.display = 'block';
+            if (fallbackEl) fallbackEl.style.display = 'none';
+        };
+        avatarEl.onerror = function () {
+            if (src !== 'assets/images/sivesh.jpg') {
+                showAvatar('assets/images/sivesh.jpg');
+            } else {
+                avatarEl.style.display = 'none';
+                if (fallbackEl) fallbackEl.style.display = 'flex';
+            }
+        };
+        avatarEl.src = src;
+    };
+
+    if (picture && typeof picture === 'string' && (picture.startsWith('https://') || picture.startsWith('data:'))) {
+        showAvatar(picture);
+    } else {
+        showAvatar('assets/images/sivesh.jpg');
+    }
+}
+window.updateGoogleAvatar = updateGoogleAvatar;
+
 /** Synchronously writes the Google user into the form and shows the user card. */
 function _applyGoogleUserNow() {
     if (!_googleUser) return;
@@ -82,13 +124,12 @@ function _applyGoogleUserNow() {
     // Show user card, hide sign-in button
     const signinBtn = document.querySelector('.g-signin-wrapper');
     const userCard  = document.getElementById('google-user-card');
-    const avatar    = document.getElementById('google-avatar');
     const dispName  = document.getElementById('google-display-name');
     const dispEmail = document.getElementById('google-display-email');
 
     if (signinBtn)  signinBtn.style.display = 'none';
     if (userCard)   userCard.style.display   = 'flex';
-    if (avatar)     avatar.src = (picture && typeof picture === 'string' && picture.startsWith('https://')) ? picture : '';
+    updateGoogleAvatar(picture, name, email);
     if (dispName)   dispName.textContent  = name;
     if (dispEmail)  dispEmail.textContent = email;
 
@@ -459,7 +500,7 @@ function initPreloader() {
 
     // Simulate loading
     const loadingInterval = setInterval(() => {
-        progress += Math.floor(Math.random() * 4) + 1; // Slower increment (1 to 4)
+        progress += Math.floor(Math.random() * 3) + 1; // Snappy progress
 
         if (progress >= 100) {
             progress = 100;
@@ -471,8 +512,8 @@ function initPreloader() {
 
                 setTimeout(() => {
                     preloader.style.display = 'none';
-                }, 500);
-            }, 800); // Wait a bit longer at 100%
+                }, 400);
+            }, 300);
         }
 
         if (progressFill && progressPercent) {
@@ -480,7 +521,7 @@ function initPreloader() {
             progressPercent.textContent = `${progress}%`;
         }
 
-    }, 150); // Slower interval (150ms)
+    }, 55); // Snappy interval (55ms)
 }
 
 // Execute immediately if DOM is ready, otherwise wait
@@ -503,6 +544,16 @@ function initContactForm() {
 
     contactForm.addEventListener('submit', async function (e) {
         e.preventDefault();
+
+        // Security Firewall rate limit & bot check
+        if (window.SecurityFirewall) {
+            const rateCheck = window.SecurityFirewall.checkRateLimit();
+            if (!rateCheck.allowed) {
+                alert(`Security Notice: ${rateCheck.message}`);
+                return;
+            }
+            window.SecurityFirewall.recordSubmission();
+        }
 
         const submitBtn = contactForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
@@ -649,16 +700,83 @@ function initVisitorCounter() {
     const visitorCountEl = document.getElementById('visitor-count');
     if (!visitorCountEl) return;
 
-    // Only count once per browser session (not on every refresh)
-    if (!sessionStorage.getItem('counted')) {
-        let count = parseInt(localStorage.getItem('sivesh_visitors') || '0', 10);
-        count += 1;
-        localStorage.setItem('sivesh_visitors', count);
-        sessionStorage.setItem('counted', 'true');
+    const API_BASE = 'https://countapi.mileshilliard.com/api/v1';
+    const COUNTER_KEY = 'kommalapati_sivesh_portfolio_visits_v1';
+    const FALLBACK_BASE = 0;
+
+    // Retrieve cached value. If it was previously set to old 1420+ base, reset to 0
+    let stored = localStorage.getItem('sivesh_cached_visitors');
+    let cachedCount = stored ? parseInt(stored, 10) : FALLBACK_BASE;
+    if (isNaN(cachedCount) || cachedCount >= 1420) {
+        cachedCount = FALLBACK_BASE;
+        localStorage.setItem('sivesh_cached_visitors', '0');
     }
 
-    const count = parseInt(localStorage.getItem('sivesh_visitors') || '0', 10);
-    visitorCountEl.textContent = count;
+    // Always start visual counter display from 0
+    visitorCountEl.textContent = '0';
+
+    // Only increment once per browser session; subsequent refreshes query current value
+    const hasCountedSession = sessionStorage.getItem('sivesh_session_counted');
+    const endpoint = hasCountedSession
+        ? `${API_BASE}/get/${COUNTER_KEY}`
+        : `${API_BASE}/hit/${COUNTER_KEY}`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+    fetch(endpoint, { signal: controller.signal })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            clearTimeout(timeoutId);
+            if (data && typeof data.value === 'number') {
+                const finalCount = data.value;
+                localStorage.setItem('sivesh_cached_visitors', finalCount);
+                sessionStorage.setItem('sivesh_session_counted', 'true');
+                animateVisitorCount(visitorCountEl, 0, finalCount);
+            } else {
+                animateVisitorCount(visitorCountEl, 0, cachedCount);
+            }
+        })
+        .catch(err => {
+            clearTimeout(timeoutId);
+            // Fallback for offline/ad-blocker scenarios: increment locally if new session
+            if (!hasCountedSession) {
+                const nextCount = cachedCount + 1;
+                localStorage.setItem('sivesh_cached_visitors', nextCount);
+                sessionStorage.setItem('sivesh_session_counted', 'true');
+                animateVisitorCount(visitorCountEl, 0, nextCount);
+            } else {
+                animateVisitorCount(visitorCountEl, 0, cachedCount);
+            }
+        });
+}
+
+function animateVisitorCount(element, start, end) {
+    if (!element) return;
+    if (start === end) {
+        element.textContent = end.toLocaleString();
+        return;
+    }
+    const duration = 1200;
+    const startTime = performance.now();
+    const diff = end - start;
+
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+        const current = Math.floor(start + diff * ease);
+        element.textContent = current.toLocaleString();
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            element.textContent = end.toLocaleString();
+        }
+    }
+    requestAnimationFrame(step);
 }
 
 // Initialize visitor counter
@@ -713,13 +831,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // They haven't provided purpose yet
             chatStep = 0; 
             setTimeout(() => {
-                addMessage(`Thanks for signing in with Google, ${name.split(' ')[0]}! What is the purpose of your message?`);
+                addMessage(`Thank you for connecting with Google, ${name.split(' ')[0]}! Could you please share the purpose of your message?`);
             }, 600);
         } else {
             chatStep = 3; // Jump straight to message step
-            chatInput.placeholder = "Type your message...";
+            chatInput.placeholder = "Please write your message for Sivesh...";
             setTimeout(() => {
-                addMessage(`Thanks for signing in with Google, ${name.split(' ')[0]}! What message would you like to send Sivesh?`);
+                addMessage(`Thank you for connecting with Google, ${name.split(' ')[0]}! Please feel free to write your message for Sivesh below.`);
             }, 600);
         }
     };
@@ -736,9 +854,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chatSendBtn.style.display = 'block';
         if(hcaptchaContainer) hcaptchaContainer.style.display = 'none';
         
-        chatInput.placeholder = "Type your purpose...";
+        chatInput.placeholder = "Please share the purpose of your message...";
         chatMessages.innerHTML = `<div class="chat-msg bot-msg">
-            <i class="fas fa-robot"></i> <span>Hi! I'm Sivesh's virtual assistant. I can help you leave a message. First, what is the purpose of your message?</span>
+            <i class="fas fa-robot"></i> <span>Hello! I am Sivesh's virtual assistant. I would be delighted to help you get in touch with him. May I please know the purpose of your message?</span>
         </div>`;
     };
 
@@ -747,6 +865,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!text) return;
         if (text.length > 1000) text = text.slice(0, 1000);
         
+        // Security Firewall payload inspection & data leak prevention
+        if (window.SecurityFirewall) {
+            const check = window.SecurityFirewall.inspect(text, 'chat');
+            if (!check.valid) {
+                addMessage(`🛡️ Security Alert: ${check.reason}`);
+                chatInput.value = '';
+                return;
+            }
+        }
+
         // Add user message to UI
         addMessage(text, true);
         chatInput.value = '';
@@ -758,38 +886,38 @@ document.addEventListener('DOMContentLoaded', () => {
             if (hiddenName.value && hiddenEmail.value) {
                 // If signed in with Google
                 chatStep = 3;
-                chatInput.placeholder = "Type your message...";
+                chatInput.placeholder = "Please write your message for Sivesh...";
                 setTimeout(() => {
-                    addMessage(`Got it! What message would you like to send Sivesh?`);
+                    addMessage(`Thank you so much! Please feel free to write your message for Sivesh below.`);
                 }, 600);
             } else {
-                chatInput.placeholder = "Type your name...";
+                chatInput.placeholder = "Please enter your name...";
                 setTimeout(() => {
-                    addMessage(`Got it! And what is your name?`);
+                    addMessage(`Thank you! May I kindly ask for your name?`);
                 }, 600);
                 chatStep++;
             }
         } else if (chatStep === 1) {
             // Save Name
             hiddenName.value = text.slice(0, 100);
-            chatInput.placeholder = "Type your email...";
+            chatInput.placeholder = "Please enter your email address...";
             setTimeout(() => {
-                addMessage(`Nice to meet you, ${hiddenName.value}! What's the best email to reach you at?`);
+                addMessage(`It is a pleasure to meet you, ${hiddenName.value}! Could you please share your email address so Sivesh can reach back out to you?`);
             }, 600);
             chatStep++;
         } else if (chatStep === 2) {
             // Validate Email
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) {
                 setTimeout(() => {
-                    addMessage(`Hmm, that doesn't look like a valid email. Could you please provide a correct email address?`);
+                    addMessage(`Could you please double-check your email address? It looks like there might be a typo.`);
                 }, 600);
                 return; // Do not advance chatStep
             }
             // Save Email
             hiddenEmail.value = text;
-            chatInput.placeholder = "Type your message...";
+            chatInput.placeholder = "Please write your message for Sivesh...";
             setTimeout(() => {
-                addMessage(`Got it! What message would you like to send Sivesh?`);
+                addMessage(`Thank you so much! Please feel free to write your message for Sivesh below.`);
             }, 600);
             chatStep++;
         } else if (chatStep >= 3) {
@@ -800,14 +928,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (chatStep === 3) {
                 setTimeout(() => {
-                    addMessage(`Almost done! Please verify you are human before sending.`);
+                    addMessage(`We are almost done! Could you please complete the quick verification below so I can send your message?`);
                     if (hcaptchaContainer) hcaptchaContainer.style.display = 'flex';
                 }, 600);
                 chatStep = 4;
             } else {
                 // Additional message after submit
                 setTimeout(() => {
-                    addMessage(`Please verify you are human again to send another message.`);
+                    addMessage(`Kindly complete the verification once more to send your additional message.`);
                     if (hcaptchaContainer) hcaptchaContainer.style.display = 'flex';
                     if (window.hcaptcha) {
                         try { hcaptcha.reset(); } catch(e) {}
@@ -819,16 +947,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function submitFormAjax() {
-        chatInput.placeholder = "Sending message...";
+        // Security Firewall rate limiting & anti-flood guard
+        if (window.SecurityFirewall) {
+            const rateCheck = window.SecurityFirewall.checkRateLimit();
+            if (!rateCheck.allowed) {
+                addMessage(`🛡️ Security Notice: ${rateCheck.message}`);
+                chatInput.disabled = false;
+                chatSendBtn.disabled = false;
+                if (captchaSendBtn) captchaSendBtn.disabled = false;
+                return;
+            }
+            window.SecurityFirewall.recordSubmission();
+        }
+
+        chatInput.placeholder = "Sending your message...";
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
         if (captchaSendBtn) captchaSendBtn.disabled = true;
         
         setTimeout(() => {
             if (chatStep === 4) {
-                addMessage(`Perfect. Sending your message to Sivesh now...`);
+                addMessage(`Thank you! Sending your message to Sivesh now...`);
             } else {
-                addMessage(`Sending your additional message...`);
+                addMessage(`Sending your additional message to Sivesh...`);
             }
             
             // Submit via Web3Forms AJAX
@@ -848,18 +989,18 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    addMessage('Message sent successfully! You will also receive an email confirmation. If you have anything else to add, just type it below.');
+                    addMessage('Your message has been sent successfully! Sivesh will receive it shortly, and an email confirmation is on its way to you. If there is anything else you would like to add, please feel free to type it below.');
                     chatStep = 5;
                     if(hcaptchaContainer) hcaptchaContainer.style.display = 'none';
                     chatInput.style.display = 'block';
                     chatSendBtn.style.display = 'block';
                 } else {
-                    addMessage('Oops, something went wrong. Please try sending it again.');
+                    addMessage('I apologize, but something went wrong while sending. Could you please try again?');
                 }
                 chatInput.disabled = false;
                 chatSendBtn.disabled = false;
                 if (captchaSendBtn) captchaSendBtn.disabled = false;
-                chatInput.placeholder = "Type another message...";
+                chatInput.placeholder = "Please type any additional message...";
                 chatInput.focus();
                 
                 // Refill google user if applicable
@@ -868,11 +1009,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             })
             .catch(error => {
-                addMessage('Oops, a network error occurred. Please check your connection and try again.');
+                addMessage('I apologize, a network error occurred. Please check your connection and try again.');
                 chatInput.disabled = false;
                 chatSendBtn.disabled = false;
                 if (captchaSendBtn) captchaSendBtn.disabled = false;
-                chatInput.placeholder = "Type your message...";
+                chatInput.placeholder = "Please write your message for Sivesh...";
                 chatInput.style.display = 'block';
                 chatSendBtn.style.display = 'block';
                 if(hcaptchaContainer) hcaptchaContainer.style.display = 'none';
@@ -889,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formElement = document.getElementById('contact-form');
             const formData = new FormData(formElement);
             if (!formData.get('h-captcha-response')) {
-                addMessage(`Please complete the captcha verification first.`);
+                addMessage(`Could you please complete the verification checkbox above first?`);
                 return;
             }
             submitFormAjax();
@@ -911,10 +1052,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         // Only run this if we are not already at a higher step (e.g. from Google Sign-In fast path)
         if (chatStep === 0 && !hiddenName.value) {
-            chatInput.placeholder = "Type your purpose...";
+            chatInput.placeholder = "Please share the purpose of your message...";
             if (chatMessages) {
                 chatMessages.innerHTML = `<div class="chat-msg bot-msg">
-                    <i class="fas fa-robot"></i> <span>Hi! I'm Sivesh's virtual assistant. I can help you leave a message. First, what is the purpose of your message?</span>
+                    <i class="fas fa-robot"></i> <span>Hello! I am Sivesh's virtual assistant. I would be delighted to help you get in touch with him. May I please know the purpose of your message?</span>
                 </div>`;
             }
         }
@@ -947,8 +1088,15 @@ function fetchUserInfo(accessToken) {
     })
     .then(res => res.json())
     .then(payload => {
-        console.log('Google Sign-In successful:', payload.email);
+        console.log('Google authentication verified successfully.');
         
+        _googleUser = {
+            name: payload.name || '',
+            email: payload.email || '',
+            picture: payload.picture || ''
+        };
+        sessionStorage.setItem('_googleUser', JSON.stringify(_googleUser));
+
         const emailInput = document.getElementById('hidden-email');
         const nameInput = document.getElementById('hidden-name');
         if (emailInput) emailInput.value = payload.email;
@@ -960,10 +1108,7 @@ function fetchUserInfo(accessToken) {
         if (signInWrapper) signInWrapper.style.display = 'none';
         if (userCard) {
             userCard.style.display = 'flex';
-            const avatarEl = document.getElementById('google-avatar');
-            if (avatarEl) {
-                avatarEl.src = (payload.picture && typeof payload.picture === 'string' && payload.picture.startsWith('https://')) ? payload.picture : '';
-            }
+            updateGoogleAvatar(payload.picture, payload.name, payload.email);
             const nameEl = document.getElementById('google-display-name');
             if (nameEl) nameEl.textContent = payload.name || '';
             const emailEl = document.getElementById('google-display-email');
@@ -994,12 +1139,32 @@ window.clearGoogleSignIn = function() {
     const nameInput = document.getElementById('hidden-name');
     if (emailInput) emailInput.value = '';
     if (nameInput) nameInput.value = '';
+
+    const contactName = document.getElementById('contact-name');
+    const contactEmail = document.getElementById('contact-email');
+    if (contactName) {
+        contactName.removeAttribute('readonly');
+        contactName.classList.remove('google-locked');
+        contactName.value = '';
+    }
+    if (contactEmail) {
+        contactEmail.removeAttribute('readonly');
+        contactEmail.classList.remove('google-locked');
+        contactEmail.value = '';
+    }
     
     const signInWrapper = document.querySelector('.g-signin-wrapper');
     const userCard = document.getElementById('google-user-card');
+    const avatarEl = document.getElementById('google-avatar');
+    const fallbackEl = document.getElementById('google-avatar-fallback');
     
     if (signInWrapper) signInWrapper.style.display = 'block';
     if (userCard) userCard.style.display = 'none';
+    if (avatarEl) {
+        avatarEl.src = '';
+        avatarEl.style.display = 'none';
+    }
+    if (fallbackEl) fallbackEl.style.display = 'none';
 
     // Reset chat terminal if available
     if (window.resetChat) {
@@ -1024,4 +1189,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
         .catch(err => console.error('Error fetching version:', err));
+});
+
+
+// -- Double-tap support for mobile/touch devices on clickable preview images --
+document.addEventListener('DOMContentLoaded', () => {
+    let lastTap = 0;
+    const clickableImages = document.querySelectorAll('.clickable-preview');
+    clickableImages.forEach(img => {
+        img.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 350 && tapLength > 0) {
+                const url = img.getAttribute('data-url') || 'https://secure-vault-delta-virid.vercel.app/';
+                window.open(url, '_blank', 'noopener,noreferrer');
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+        });
+    });
 });

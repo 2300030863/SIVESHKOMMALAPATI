@@ -61,13 +61,17 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=40">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@600&family=Noto+Sans+Devanagari:wght@600&family=Noto+Sans+Tamil:wght@600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="enhance.css?v=2">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="assets/images/3a56f64a-4cdd-40e1-a619-ba2431212754.png">
+    <link rel="icon" type="image/png" href="assets/images/portfolio-logo.png">
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1CTFKKJG35"></script>
@@ -81,14 +85,19 @@
     <!-- Security Headers -->
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <div class="cursor-glow" aria-hidden="true"></div>
+    <button class="back-to-top" type="button" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
+
     <!-- Preloader -->
     <div id="preloader" class="preloader">
         <div class="preloader-content">
@@ -108,6 +117,11 @@
                     <div class="dot" style="top: 20%; left: 90%; background: #F4D77D;"></div>
                     <div class="dot" style="top: 90%; left: 20%; background: #D4AF37;"></div>
                 </div>
+            </div>
+
+            <div class="hello-wrap" aria-live="off">
+                <div class="hello-word" id="hello-word" lang="en">Hello</div>
+                <div class="hello-lang" id="hello-lang">English</div>
             </div>
 
             <h2 class="loader-title">SIVESH KOMMALAPATI</h2>
@@ -182,6 +196,7 @@
 
             <!-- Text below -->
             <div class="hero-text">
+                <div class="hero-status"><span class="pulse-dot"></span> Open to internships &amp; opportunities</div>
 
                 <h1 class="gradient-text hero-title">KOMMALAPATI SIVESH</h1>
                 <h2 class="hero-subtitle">
@@ -215,6 +230,46 @@
         </div>
     </section>
 
+
+    <!-- Stats strip + tech ticker -->
+    <section class="stats-strip" aria-label="Highlights">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card glass-effect">
+                    <div class="stat-number" data-count="9.0" data-decimals="1">9.0</div>
+                    <div class="stat-label">CGPA</div>
+                </div>
+                <div class="stat-card glass-effect">
+                    <div class="stat-number" data-count="5" data-suffix="+">5+</div>
+                    <div class="stat-label">Projects Built</div>
+                </div>
+                <div class="stat-card glass-effect">
+                    <div class="stat-number" data-count="5">5</div>
+                    <div class="stat-label">Global Certifications</div>
+                </div>
+                <div class="stat-card glass-effect">
+                    <div class="stat-number" data-count="1">1</div>
+                    <div class="stat-label">RPA Internship</div>
+                </div>
+            </div>
+        </div>
+        <div class="marquee" aria-hidden="true">
+            <div class="marquee-track">
+                <span class="marquee-item"><i class="fab fa-java"></i> Java</span>
+                <span class="marquee-item"><i class="fas fa-leaf"></i> Spring Boot</span>
+                <span class="marquee-item"><i class="fab fa-react"></i> React</span>
+                <span class="marquee-item"><i class="fab fa-node-js"></i> Node.js</span>
+                <span class="marquee-item"><i class="fab fa-python"></i> Python</span>
+                <span class="marquee-item"><i class="fas fa-brain"></i> Machine Learning</span>
+                <span class="marquee-item"><i class="fas fa-eye"></i> Computer Vision</span>
+                <span class="marquee-item"><i class="fas fa-database"></i> MySQL</span>
+                <span class="marquee-item"><i class="fab fa-docker"></i> Docker</span>
+                <span class="marquee-item"><i class="fab fa-microsoft"></i> Azure</span>
+                <span class="marquee-item"><i class="fab fa-git-alt"></i> Git &amp; GitHub</span>
+                <span class="marquee-item"><i class="fas fa-robot"></i> RPA</span>
+            </div>
+        </div>
+    </section>
 
     <!-- About Section -->
     <section id="about" class="about">
@@ -321,14 +376,21 @@
     <section id="projects" class="projects">
         <div class="container">
             <h2 class="section-title">Projects</h2>
+            <div class="project-filters" role="group" aria-label="Filter projects">
+                <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+                <button type="button" class="filter-btn" data-filter="fullstack" aria-pressed="false">Full
+                    Stack</button>
+                <button type="button" class="filter-btn" data-filter="ai" aria-pressed="false">AI / ML</button>
+            </div>
             <div class="projects-grid">
                 <!-- Project 1 -->
-                <div class="project-card glass-effect">
+                <div class="project-card glass-effect" data-category="fullstack">
                     <img src="assets/images/project-placeholder.png" alt="Budget Planner" class="project-image">
                     <div class="project-header">
                         <h3>Budget Planner Web Application</h3>
                         <div class="project-icons">
-                            <a href="#" onclick="event.preventDefault(); alert('Live demo coming soon!');" role="button" class="project-demo-btn">
+                            <a href="#" onclick="event.preventDefault(); alert('Live demo coming soon!');" role="button"
+                                class="project-demo-btn">
                                 <i class="fas fa-external-link-alt"></i> Coming Soon
                             </a>
                             <a href="https://github.com/2300030863/BudgectPlanner.git" target="_blank"
@@ -361,12 +423,13 @@
                 </div>
 
                 <!-- Project 2 -->
-                <div class="project-card glass-effect">
+                <div class="project-card glass-effect" data-category="fullstack">
                     <img src="assets/images/expense-tracker.png" alt="Expense Tracker System" class="project-image">
                     <div class="project-header">
                         <h3>Expense Tracker System</h3>
                         <div class="project-icons">
-                            <a href="#" onclick="event.preventDefault(); alert('Live demo coming soon!');" role="button" class="project-demo-btn">
+                            <a href="#" onclick="event.preventDefault(); alert('Live demo coming soon!');" role="button"
+                                class="project-demo-btn">
                                 <i class="fas fa-external-link-alt"></i> Coming Soon
                             </a>
                             <a href="https://github.com/2300030863/Expense-Tracker-Fullstack-Using-Spring-Boot.git"
@@ -397,13 +460,14 @@
                 </div>
 
                 <!-- Project 3 -->
-                <div class="project-card glass-effect">
+                <div class="project-card glass-effect" data-category="ai fullstack">
                     <img src="assets/images/hire-ai.png" alt="HR Intelligence & Interview Automation"
                         class="project-image">
                     <div class="project-header">
                         <h3>HR Intelligence & Interview Automation</h3>
                         <div class="project-icons">
-                            <a href="#" onclick="event.preventDefault(); alert('Live demo coming soon!');" role="button" class="project-demo-btn">
+                            <a href="#" onclick="event.preventDefault(); alert('Live demo coming soon!');" role="button"
+                                class="project-demo-btn">
                                 <i class="fas fa-external-link-alt"></i> Coming Soon
                             </a>
                             <a href="https://github.com/2300030863/Human_Resources_Intelligent_Candidate_Mathching_Interview_Automation.git"
@@ -435,13 +499,14 @@
                 </div>
 
                 <!-- Project 4 -->
-                <div class="project-card glass-effect">
+                <div class="project-card glass-effect" data-category="ai">
                     <img src="assets/images/object-detection.png" alt="Object Detection + Scene Summary"
                         class="project-image">
                     <div class="project-header">
                         <h3>Object Detection + Scene Summary</h3>
                         <div class="project-icons">
-                            <a href="#" onclick="event.preventDefault(); alert('Live demo coming soon!');" role="button" class="project-demo-btn">
+                            <a href="#" onclick="event.preventDefault(); alert('Live demo coming soon!');" role="button"
+                                class="project-demo-btn">
                                 <i class="fas fa-external-link-alt"></i> Coming Soon
                             </a>
                             <a href="https://github.com/2300030863/Object-Detection-Pulse-Scene-Summary-Project.git"
@@ -471,39 +536,104 @@
                 </div>
 
                 <!-- Project 5 -->
-                <div class="project-card glass-effect">
-                    <div class="project-preview">
-                        <iframe src="https://secure-vault-delta-virid.vercel.app/" title="Secure Vault home page"
-                            loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
-                    </div>
+                <div class="project-card glass-effect" data-category="fullstack">
+                    <span class="featured-badge"><i class="fas fa-star"></i> Live &amp; Featured</span>
+                    <img src="assets/images/docqevrilo.png" alt="DocQevrilo &ndash; Secure Document Management Platform"
+                        class="project-image clickable-preview" data-url="https://secure-vault-delta-virid.vercel.app/"
+                        title="Double-click to open website"
+                        ondblclick="window.open('https://secure-vault-delta-virid.vercel.app/', '_blank', 'noopener,noreferrer')">
                     <div class="project-header">
-                        <h3>Secure Vault — Private Document Sharing</h3>
+                        <h3>DocQevrilo &ndash; Secure Document Management Platform</h3>
                         <div class="project-icons">
-                            <a href="https://secure-vault-delta-virid.vercel.app/vault" target="_blank"
+                            <a href="https://secure-vault-delta-virid.vercel.app/" target="_blank"
                                 rel="noopener noreferrer" class="project-demo-btn">
                                 <i class="fas fa-external-link-alt"></i> Live Demo
                             </a>
                         </div>
                     </div>
-                    <p class="project-description">
-                        Developed Secure Vault as a centralized and user-friendly alternative to creating messaging
-                        groups for sharing documents. Users can upload one or multiple files and share them through a
-                        unique access code, while recipients can retrieve files without joining a WhatsApp or Telegram
-                        group.
-                    </p>
+
+                    <div class="project-meta-box">
+                        <p class="project-meta-item"><strong>Project Type:</strong> Full Stack Web Application</p>
+                        <p class="project-meta-item"><strong>Role:</strong> Full Stack Developer</p>
+                        <p class="project-meta-item"><strong>Technologies:</strong> React.js, Node.js, Express.js, MySQL
+                            (TiDB Cloud), Backblaze B2, Vercel, Render</p>
+                    </div>
+
                     <div class="project-tech">
-                        <span class="tech-badge">React</span>
+                        <span class="tech-badge">React.js</span>
+                        <span class="tech-badge">Vite</span>
                         <span class="tech-badge">Node.js</span>
                         <span class="tech-badge">Express.js</span>
-                        <span class="tech-badge">TiDB Cloud</span>
+                        <span class="tech-badge">MySQL (TiDB Cloud)</span>
                         <span class="tech-badge">Backblaze B2</span>
+                        <span class="tech-badge">Brevo API</span>
+                        <span class="tech-badge">Vercel</span>
+                        <span class="tech-badge">Render</span>
                     </div>
-                    <div class="project-features">
-                        <p>Unique Access Code Sharing</p>
-                        <p>Single and Multiple File Uploads</p>
-                        <p>Online File Storage</p>
-                        <p>Download Limits</p>
-                        <p>Automatic File Expiration</p>
+
+                    <div class="project-section-block">
+                        <h4 class="project-block-title">About the Project</h4>
+                        <p class="project-description">
+                            DocQevrilo is a secure, cloud-based document management platform designed to simplify
+                            document storage, organization, sharing, and management. It provides users with a
+                            centralized workspace to upload, access, and manage their important files while maintaining
+                            privacy and access control.
+                        </p>
+                        <p class="project-description">
+                            The platform features separate Admin and User roles, secure authentication, OTP-based
+                            password recovery, and cloud-based document storage. Its architecture combines a responsive
+                            React frontend with a Node.js backend and a MySQL-compatible cloud database.
+                        </p>
+                    </div>
+
+                    <div class="project-section-block">
+                        <h4 class="project-block-title">Key Features</h4>
+                        <ul class="project-detail-list">
+                            <li><strong>Secure Authentication:</strong> User login, registration, and OTP-based password
+                                recovery.</li>
+                            <li><strong>Role-Based Access Control:</strong> Separate Admin and User access with
+                                backend-enforced permissions.</li>
+                            <li><strong>Document Management:</strong> Upload, organize, access, and manage documents.
+                            </li>
+                            <li><strong>Cloud Storage:</strong> Integrated Backblaze B2 for document storage.</li>
+                            <li><strong>Admin Dashboard:</strong> Centralized user and platform management.</li>
+                            <li><strong>Secure Sharing:</strong> Controlled document-sharing functionality.</li>
+                            <li><strong>Email Integration:</strong> Brevo transactional emails for OTP verification and
+                                account recovery.</li>
+                            <li><strong>Responsive UI:</strong> Modern, responsive interface with a red-and-black visual
+                                theme.</li>
+                        </ul>
+                    </div>
+
+                    <div class="project-section-block">
+                        <h4 class="project-block-title">Technology Stack</h4>
+                        <ul class="project-detail-list">
+                            <li><strong>Frontend:</strong> React.js, Vite</li>
+                            <li><strong>Backend:</strong> Node.js, Express.js</li>
+                            <li><strong>Database:</strong> MySQL – TiDB Cloud</li>
+                            <li><strong>Cloud Storage:</strong> Backblaze B2</li>
+                            <li><strong>Email Service:</strong> Brevo API</li>
+                            <li><strong>Frontend Deployment:</strong> Vercel</li>
+                            <li><strong>Backend Deployment:</strong> Render</li>
+                            <li><strong>Version Control:</strong> Git and GitHub</li>
+                        </ul>
+                    </div>
+
+                    <div class="project-section-block">
+                        <h4 class="project-block-title">My Contribution</h4>
+                        <p class="project-description">
+                            Designed and developed the full-stack application, implemented authentication and role-based
+                            authorization, integrated cloud document storage and email services, connected the frontend
+                            with backend APIs, and worked on application security and deployment.
+                        </p>
+                    </div>
+
+                    <div class="project-section-block">
+                        <h4 class="project-block-title">Project Objective</h4>
+                        <p class="project-description" style="margin-bottom: 0;">
+                            To build a reliable and user-friendly document management solution that makes digital file
+                            organization, access, and sharing easier while prioritizing security and privacy.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -809,8 +939,9 @@
                 <div class="contact-info"
                     style="display: flex; justify-content: center; align-items: center; position: relative; min-height: 350px;">
                     <div class="speech-bubble" style="top: 15%; right: 10%;">Hello! 👋</div>
-                    <img src="assets/images/contact-vector.png" alt="Let's Communicate" class="floating-image"
-                        style="max-width: 100%; height: auto; max-height: 350px; border-radius: 12px; object-fit: contain;">
+                    <img src="assets/images/contact-vector.png?v=2" alt="Let's Communicate" class="floating-image"
+                        style="max-width: 100%; height: auto; max-height: 350px; border-radius: 12px; object-fit: contain;"
+                        onerror="this.onerror=null; this.src='assets/images/contact-vector_original.jpg';">
                 </div>
 
                 <form action="https://api.web3forms.com/submit" method="POST" class="contact-form glass-effect"
@@ -845,7 +976,13 @@
                             </button>
                         </div>
                         <div id="google-user-card" class="google-user-card" style="display:none;">
-                            <img id="google-avatar" src="" alt="Profile" class="google-avatar">
+                            <div class="google-avatar-box">
+                                <img id="google-avatar" src="" alt="" class="google-avatar" referrerpolicy="no-referrer"
+                                    style="display:none;">
+                                <div id="google-avatar-fallback" class="google-avatar-fallback">
+                                    <span id="google-avatar-initial">U</span>
+                                </div>
+                            </div>
                             <div class="google-user-info">
                                 <span id="google-display-name" class="google-name"></span>
                                 <span id="google-display-email" class="google-email"></span>
@@ -871,14 +1008,16 @@
                         <div class="chat-messages" id="chat-messages">
                             <div class="chat-msg bot-msg">
                                 <i class="fas fa-robot"></i>
-                                <span>Hi! I'm Sivesh's virtual assistant. I can help you leave a message. First, what is
-                                    your name?</span>
+                                <span>Hello! I am Sivesh's virtual assistant. I would be delighted to help you get in
+                                    touch with him. May I please know the purpose of your message?</span>
                             </div>
                         </div>
 
                         <div class="chat-input-area">
-                            <input type="text" id="chat-input" placeholder="Type your name..." autocomplete="off" maxlength="1000">
-                            <button type="button" id="chat-send-btn"><i class="fas fa-paper-plane"></i></button>
+                                type="text" id="chat-input" placeholder="Please share the purpose of your message..."
+                                autocomplete="off" maxlength="1000">
+                            <button type="button" id="chat-send-btn" title="Send message" aria-label="Send message"><i
+                                    class="fas fa-paper-plane"></i></button>
                         </div>
                     </div>
 
@@ -892,7 +1031,8 @@
                     <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
 
                     <!-- hCaptcha Widget (hidden initially) -->
-                    <div id="hcaptcha-container" style="display: none; flex-direction: column; align-items: center; margin-top: 10px; gap: 10px;">
+                    <div id="hcaptcha-container"
+                        style="display: none; flex-direction: column; align-items: center; margin-top: 10px; gap: 10px;">
                         <div class="h-captcha" data-captcha="true"></div>
                         <button type="button" id="captcha-send-btn" class="btn btn-primary" style="width: 100%;">
                             <i class="fas fa-paper-plane"></i> Send Message
@@ -911,10 +1051,11 @@
         <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
             <p>&copy; 2026 Sivesh Kommalapati. All rights reserved.</p>
             <div class="visitor-counter glass-effect"
-                style="padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; color: var(--text-light); border: 1px solid rgba(255, 255, 255, 0.1);">
+                style="padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); border: 1px solid rgba(212, 175, 55, 0.2);">
                 <i class="fas fa-eye" style="color: var(--accent-cyan);"></i>
                 <span>Visitors: </span>
-                <span id="visitor-count" style="font-weight: bold; font-family: 'Outfit', sans-serif;">...</span>
+                <span id="visitor-count"
+                    style="font-weight: bold; font-family: 'Outfit', sans-serif; color: var(--accent-purple);">0</span>
             </div>
             <p id="app-version-display" class="version-text" style="font-size: 0.8rem; margin-top: 5px;">v2.4.0</p>
         </div>
@@ -928,7 +1069,9 @@
         😊Available for Opportunities
     </div>
 
+    <script src="security.js?v=1"></script>
     <script src="script.js?v=23"></script>
+    <script src="enhance.js?v=2"></script>
     <script src="https://web3forms.com/client/script.js" async defer></script>
 
 </body>

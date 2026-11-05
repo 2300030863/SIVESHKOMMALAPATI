@@ -1069,6 +1069,23 @@ section {
     border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
+.project-image.clickable-preview {
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.project-image.clickable-preview:hover {
+    transform: translateY(-2px);
+    border-color: rgba(212, 175, 55, 0.6);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.2);
+}
+
+.project-image.clickable-preview:active {
+    transform: scale(0.99);
+}
+
 .project-preview {
     width: 100%;
     aspect-ratio: 16 / 9;
@@ -1126,6 +1143,76 @@ section {
     color: #D4AF37;
     font-weight: bold;
     margin-right: 4px;
+}
+
+/* --- Detailed Project Meta & Blocks --- */
+.project-meta-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.85rem 1.1rem;
+    background: rgba(212, 175, 55, 0.05);
+    border-left: 3px solid var(--accent-cyan);
+    border-top: 1px solid rgba(212, 175, 55, 0.12);
+    border-right: 1px solid rgba(212, 175, 55, 0.12);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+}
+
+.project-meta-item {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.project-meta-item strong {
+    color: var(--accent-purple);
+    font-weight: 600;
+}
+
+.project-section-block {
+    margin-top: 1.25rem;
+}
+
+.project-block-title {
+    color: var(--accent-cyan);
+    font-size: 1.05rem;
+    font-family: 'Space Grotesk', sans-serif;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.5px;
+}
+
+.project-detail-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0 0 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.project-detail-list li {
+    position: relative;
+    padding-left: 1.6rem;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+.project-detail-list li::before {
+    content: '\2726 ';
+    color: var(--accent-cyan);
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 0.85rem;
+}
+
+.project-detail-list li strong {
+    color: var(--text-primary);
+    font-weight: 600;
 }
 
 /* ==================== EDUCATION SECTION ==================== */
@@ -2033,12 +2120,41 @@ body.light-mode .chat-input-area {
     position: relative;
 }
 
+.google-avatar-box {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 50%;
+}
+
 .google-avatar {
     width: 38px;
     height: 38px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(52, 168, 83, 0.5);
+    box-sizing: border-box;
+    display: block;
+}
+
+.google-avatar-fallback {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid rgba(52, 168, 83, 0.5);
+    background: linear-gradient(135deg, #34A853, #1e7e34);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.05rem;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    text-transform: uppercase;
+    box-sizing: border-box;
+    box-shadow: 0 0 10px rgba(52, 168, 83, 0.3);
+    user-select: none;
 }
 
 .google-user-info {
