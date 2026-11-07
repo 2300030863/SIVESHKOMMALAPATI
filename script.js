@@ -154,104 +154,11 @@ function _isLocalOrigin() {
     );
 }
 
-let _isGoogleSignInLoading = false;
-let _googleTokenClient = null;
-let _googleSignInTimeout = null;
-
-function _initGoogleClient() {
-    const CLIENT_ID = '323113584930-qff55p96cturm9gdk1k3vki075o7h8dg.apps.googleusercontent.com';
-    if (window.google && google.accounts && google.accounts.oauth2) {
-        _googleTokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID,
-            scope: 'openid profile email',
-            callback: (tokenResponse) => {
-                clearTimeout(_googleSignInTimeout);
-                _restoreGoogleSignInBtn();
-                if (tokenResponse.error) {
-                    console.error('[GSI] OAuth2 token error:', tokenResponse.error);
-                    return;
-                }
-                // Exchange access token for user profile via Google's userinfo endpoint
-                fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                    headers: { Authorization: 'Bearer ' + tokenResponse.access_token }
-                })
-                .then(r => r.json())
-                .then(info => {
-                    _googleUser = {
-                        name    : info.name    || '',
-                        email   : info.email   || '',
-                        picture : info.picture || ''
-                    };
-                    _applyGoogleUser();
-                })
-                .catch(err => {
-                    console.error('[GSI] userinfo fetch failed:', err);
-                    alert('Could not retrieve your Google profile. Please try again.');
-                });
-            }
-        });
-    }
-}
-
-function _restoreGoogleSignInBtn(text = null) {
-    _isGoogleSignInLoading = false;
-    const btn = document.getElementById('google-signin-btn');
-    if (btn) {
-        btn.disabled = false;
-        const span = btn.querySelector('span');
-        if (span) {
-            span.innerHTML = text || btn._originalText || 'Continue with Google';
-        }
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-    }
-}
-
-/**
- * Triggers Google sign-in.
- * Opens the OAuth2 popup directly on user click.
- */
+// Forward trigger to unified Google Sign-In handler (defined in GOOGLE SIGN-IN section)
 function triggerGoogleSignIn() {
-    if (_isGoogleSignInLoading) return;
-
-    if (!window.google || !google.accounts) {
-        alert('Google Sign-In is still loading. Please wait a moment and try again.');
-        return;
+    if (window.triggerGoogleSignIn) {
+        window.triggerGoogleSignIn();
     }
-
-    if (!_googleTokenClient) {
-        _initGoogleClient();
-    }
-
-    if (!_googleTokenClient) {
-        alert('Google Sign-In could not be initialized.');
-        return;
-    }
-
-    // Call requestAccessToken IMMEDIATELY in the click stack to prevent popup blockers
-    _googleTokenClient.requestAccessToken({ prompt: 'select_account' });
-
-    // Then update the DOM
-    const btn = document.getElementById('google-signin-btn');
-    if (btn) {
-        btn.disabled = true;
-        const span = btn.querySelector('span');
-        if (span) {
-            if (!btn._originalText) btn._originalText = span.innerHTML;
-            span.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-        }
-        btn.style.opacity = '0.7';
-        btn.style.cursor = 'not-allowed';
-    }
-    _isGoogleSignInLoading = true;
-
-    // Reset button after 12 seconds to "Try again" if stuck
-    clearTimeout(_googleSignInTimeout);
-    _googleSignInTimeout = setTimeout(() => {
-        if (_isGoogleSignInLoading) {
-            _restoreGoogleSignInBtn('Try again');
-        }
-    }, 12000);
 }
 /**
  * Clears the signed-in state completely — used by the ✕ (sign-out) button.
@@ -1063,30 +970,70 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==================== GOOGLE SIGN-IN ==================== //
-let googleTokenClient;
+let googleTokenClient = null;
+let isGoogleSigningIn = false;
 
 function initGoogleSignIn() {
     if (window.google && google.accounts && google.accounts.oauth2) {
-        googleTokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: '323113584930-qff55p96cturm9gdk1k3vki075o7h8dg.apps.googleusercontent.com',
-            scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-            callback: (tokenResponse) => {
-                if (tokenResponse && tokenResponse.access_token) {
-                    fetchUserInfo(tokenResponse.access_token);
+        try {
+            googleTokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: '323113584930-qff55p96cturm9gdk1k3vki075o7h8dg.apps.googleusercontent.com',
+                scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+                callback: (tokenResponse) => {
+                    isGoogleSigningIn = false;
+                    restoreGoogleSignInBtn();
+                    if (tokenResponse && tokenResponse.access_token) {
+                        fetchUserInfo(tokenResponse.access_token);
+                    } else if (tokenResponse && tokenResponse.error) {
+                        console.warn('[Google Auth Error]:', tokenResponse.error);
+                        handleGoogleAuthError(tokenResponse.error);
+                    }
+                },
+                error_callback: (err) => {
+                    isGoogleSigningIn = false;
+                    restoreGoogleSignInBtn();
+                    console.warn('[Google Auth Error Callback]:', err);
+                    if (err && (err.type === 'popup_closed' || err.type === 'popup_blocked_by_browser')) {
+                        return; // User closed popup or browser blocked popup
+                    }
+                    handleGoogleAuthError(err ? (err.type || err.message) : 'error');
                 }
-            }
-        });
+            });
+        } catch (e) {
+            console.error('Failed to init Google Token Client:', e);
+        }
     } else {
-        setTimeout(initGoogleSignIn, 100);
+        setTimeout(initGoogleSignIn, 150);
     }
 }
 initGoogleSignIn();
+
+function handleGoogleAuthError(errType) {
+    const currentOrigin = window.location.origin;
+    if (errType === 'origin_mismatch' || errType === 'access_denied') {
+        alert(`Google Sign-In Authorization Notice:\n\nYour domain (${currentOrigin}) is not registered under "Authorized JavaScript origins" in Google Cloud Console.\n\nPlease add ${currentOrigin} to your Google Cloud Console Credentials.`);
+    }
+}
+
+function restoreGoogleSignInBtn(text = 'Continue with Google') {
+    const btn = document.getElementById('google-signin-btn');
+    if (btn) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        const span = btn.querySelector('span');
+        if (span) span.textContent = text;
+    }
+}
 
 function fetchUserInfo(accessToken) {
     fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: { Authorization: `Bearer ${accessToken}` }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error('Failed to retrieve profile from Google');
+        return res.json();
+    })
     .then(payload => {
         console.log('Google authentication verified successfully.');
         
@@ -1120,14 +1067,46 @@ function fetchUserInfo(accessToken) {
             window.advanceChatToMessage(payload.name, payload.email);
         }
     })
-    .catch(err => console.error("Error fetching user info:", err));
+    .catch(err => {
+        console.error("Error fetching user info:", err);
+        restoreGoogleSignInBtn();
+    });
 }
 
 window.triggerGoogleSignIn = function() {
+    if (isGoogleSigningIn) return;
+
+    if (!googleTokenClient && window.google && google.accounts && google.accounts.oauth2) {
+        initGoogleSignIn();
+    }
+
     if (googleTokenClient) {
-        googleTokenClient.requestAccessToken();
+        const btn = document.getElementById('google-signin-btn');
+        if (btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.75';
+            btn.style.cursor = 'wait';
+            const span = btn.querySelector('span');
+            if (span) span.textContent = 'Connecting...';
+        }
+        isGoogleSigningIn = true;
+        try {
+            googleTokenClient.requestAccessToken({ prompt: 'select_account' });
+        } catch (e) {
+            isGoogleSigningIn = false;
+            restoreGoogleSignInBtn();
+            console.error("Error launching Google popup:", e);
+        }
+
+        // Safety fallback timer to restore button if popup abandoned
+        setTimeout(() => {
+            if (isGoogleSigningIn) {
+                isGoogleSigningIn = false;
+                restoreGoogleSignInBtn();
+            }
+        }, 15000);
     } else {
-        alert("Google Sign-In is still loading or unavailable.");
+        alert("Google Sign-In is still loading. Please check your internet connection or try again in a few seconds.");
     }
 };
 

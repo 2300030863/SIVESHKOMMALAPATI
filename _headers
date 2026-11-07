@@ -1,6 +1,6 @@
 /*
   # Content Security Policy (CSP)
-  Content-Security-Policy: default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://cdnjs.cloudflare.com https://www.googletagmanager.com https://web3forms.com https://js.hcaptcha.com https://assets.hcaptcha.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://web3forms.com https://assets.hcaptcha.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; connect-src 'self' https://accounts.google.com https://www.googleapis.com https://api.web3forms.com https://web3forms.com https://countapi.mileshilliard.com https://www.google-analytics.com https://*.hcaptcha.com; frame-src 'self' https://accounts.google.com https://web3forms.com https://*.hcaptcha.com https://assets.hcaptcha.com; object-src 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com; upgrade-insecure-requests;
+  Content-Security-Policy: default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://cdnjs.cloudflare.com https://www.googletagmanager.com https://web3forms.com https://js.hcaptcha.com https://assets.hcaptcha.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://web3forms.com https://assets.hcaptcha.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; connect-src 'self' https://accounts.google.com https://www.googleapis.com https://oauth2.googleapis.com https://content.googleapis.com https://api.web3forms.com https://web3forms.com https://countapi.mileshilliard.com https://www.google-analytics.com https://*.hcaptcha.com; frame-src 'self' https://accounts.google.com https://content.googleapis.com https://web3forms.com https://*.hcaptcha.com https://assets.hcaptcha.com; object-src 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com; upgrade-insecure-requests;
 
   # Anti-Clickjacking Frame Protection
   X-Frame-Options: SAMEORIGIN
@@ -17,12 +17,11 @@
   # Enforce HTTPS (HSTS)
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
-  # Cross-Origin Isolation & Security
-  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  # Cross-Origin Policies (Must be unsafe-none for Google Identity Services popup auth)
+  Cross-Origin-Opener-Policy: unsafe-none
   Cross-Origin-Resource-Policy: cross-origin
 
 # Specific security for JSON data
 /*.json
   X-Content-Type-Options: nosniff
   Cache-Control: public, max-age=300
-
