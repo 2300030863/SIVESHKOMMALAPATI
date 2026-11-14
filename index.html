@@ -423,13 +423,16 @@
 
                 <!-- Project 2 -->
                 <div class="project-card glass-effect" data-category="fullstack">
-                    <img src="assets/images/expense-tracker.png" alt="Expense Tracker System" class="project-image">
+                    <img src="assets/images/expense-tracker.png?v=2" alt="Expense Tracker System"
+                        class="project-image clickable-preview" data-url="https://experiencetracker.vercel.app/"
+                        title="Double-click to open website"
+                        ondblclick="window.open('https://experiencetracker.vercel.app/', '_blank', 'noopener,noreferrer')">
                     <div class="project-header">
                         <h3>Expense Tracker System</h3>
                         <div class="project-icons">
-                            <a href="#" onclick="event.preventDefault(); alert('Live demo coming soon!');" role="button"
-                                class="project-demo-btn">
-                                <i class="fas fa-external-link-alt"></i> Coming Soon
+                            <a href="https://experiencetracker.vercel.app/" target="_blank"
+                                rel="noopener noreferrer" class="project-demo-btn">
+                                <i class="fas fa-external-link-alt"></i> Live Demo
                             </a>
                             <a href="https://github.com/2300030863/Expense-Tracker-Fullstack-Using-Spring-Boot.git"
                                 target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;"
@@ -578,62 +581,73 @@
                             centralized workspace to upload, access, and manage their important files while maintaining
                             privacy and access control.
                         </p>
-                        <p class="project-description">
-                            The platform features separate Admin and User roles, secure authentication, OTP-based
-                            password recovery, and cloud-based document storage. Its architecture combines a responsive
-                            React frontend with a Node.js backend and a MySQL-compatible cloud database.
-                        </p>
                     </div>
 
-                    <div class="project-section-block">
-                        <h4 class="project-block-title">Key Features</h4>
-                        <ul class="project-detail-list">
-                            <li><strong>Secure Authentication:</strong> User login, registration, and OTP-based password
-                                recovery.</li>
-                            <li><strong>Role-Based Access Control:</strong> Separate Admin and User access with
-                                backend-enforced permissions.</li>
-                            <li><strong>Document Management:</strong> Upload, organize, access, and manage documents.
-                            </li>
-                            <li><strong>Cloud Storage:</strong> Integrated Backblaze B2 for document storage.</li>
-                            <li><strong>Admin Dashboard:</strong> Centralized user and platform management.</li>
-                            <li><strong>Secure Sharing:</strong> Controlled document-sharing functionality.</li>
-                            <li><strong>Email Integration:</strong> Brevo transactional emails for OTP verification and
-                                account recovery.</li>
-                            <li><strong>Responsive UI:</strong> Modern, responsive interface with a red-and-black visual
-                                theme.</li>
-                        </ul>
+                    <!-- Expandable Project Details -->
+                    <div id="docqevrilo-expand" class="project-expand" style="display: none;">
+                        <div class="project-section-block" style="margin-top: 0.5rem;">
+                            <p class="project-description">
+                                The platform features separate Admin and User roles, secure authentication, OTP-based
+                                password recovery, and cloud-based document storage. Its architecture combines a responsive
+                                React frontend with a Node.js backend and a MySQL-compatible cloud database.
+                            </p>
+                        </div>
+
+                        <div class="project-section-block">
+                            <h4 class="project-block-title">Key Features</h4>
+                            <ul class="project-detail-list">
+                                <li><strong>Secure Authentication:</strong> User login, registration, and OTP-based password
+                                    recovery.</li>
+                                <li><strong>Role-Based Access Control:</strong> Separate Admin and User access with
+                                    backend-enforced permissions.</li>
+                                <li><strong>Document Management:</strong> Upload, organize, access, and manage documents.
+                                </li>
+                                <li><strong>Cloud Storage:</strong> Integrated Backblaze B2 for document storage.</li>
+                                <li><strong>Admin Dashboard:</strong> Centralized user and platform management.</li>
+                                <li><strong>Secure Sharing:</strong> Controlled document-sharing functionality.</li>
+                                <li><strong>Email Integration:</strong> Brevo transactional emails for OTP verification and
+                                    account recovery.</li>
+                                <li><strong>Responsive UI:</strong> Modern, responsive interface with a red-and-black visual
+                                    theme.</li>
+                            </ul>
+                        </div>
+
+                        <div class="project-section-block">
+                            <h4 class="project-block-title">Technology Stack</h4>
+                            <ul class="project-detail-list">
+                                <li><strong>Frontend:</strong> React.js, Vite</li>
+                                <li><strong>Backend:</strong> Node.js, Express.js</li>
+                                <li><strong>Database:</strong> MySQL – TiDB Cloud</li>
+                                <li><strong>Cloud Storage:</strong> Backblaze B2</li>
+                                <li><strong>Email Service:</strong> Brevo API</li>
+                                <li><strong>Frontend Deployment:</strong> Vercel</li>
+                                <li><strong>Backend Deployment:</strong> Render</li>
+                                <li><strong>Version Control:</strong> Git and GitHub</li>
+                            </ul>
+                        </div>
+
+                        <div class="project-section-block">
+                            <h4 class="project-block-title">My Contribution</h4>
+                            <p class="project-description">
+                                Designed and developed the full-stack application, implemented authentication and role-based
+                                authorization, integrated cloud document storage and email services, connected the frontend
+                                with backend APIs, and worked on application security and deployment.
+                            </p>
+                        </div>
+
+                        <div class="project-section-block">
+                            <h4 class="project-block-title">Project Objective</h4>
+                            <p class="project-description" style="margin-bottom: 0;">
+                                To build a reliable and user-friendly document management solution that makes digital file
+                                organization, access, and sharing easier while prioritizing security and privacy.
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="project-section-block">
-                        <h4 class="project-block-title">Technology Stack</h4>
-                        <ul class="project-detail-list">
-                            <li><strong>Frontend:</strong> React.js, Vite</li>
-                            <li><strong>Backend:</strong> Node.js, Express.js</li>
-                            <li><strong>Database:</strong> MySQL – TiDB Cloud</li>
-                            <li><strong>Cloud Storage:</strong> Backblaze B2</li>
-                            <li><strong>Email Service:</strong> Brevo API</li>
-                            <li><strong>Frontend Deployment:</strong> Vercel</li>
-                            <li><strong>Backend Deployment:</strong> Render</li>
-                            <li><strong>Version Control:</strong> Git and GitHub</li>
-                        </ul>
-                    </div>
-
-                    <div class="project-section-block">
-                        <h4 class="project-block-title">My Contribution</h4>
-                        <p class="project-description">
-                            Designed and developed the full-stack application, implemented authentication and role-based
-                            authorization, integrated cloud document storage and email services, connected the frontend
-                            with backend APIs, and worked on application security and deployment.
-                        </p>
-                    </div>
-
-                    <div class="project-section-block">
-                        <h4 class="project-block-title">Project Objective</h4>
-                        <p class="project-description" style="margin-bottom: 0;">
-                            To build a reliable and user-friendly document management solution that makes digital file
-                            organization, access, and sharing easier while prioritizing security and privacy.
-                        </p>
-                    </div>
+                    <button id="docqevrilo-read-more-btn" class="read-more-btn"
+                        onclick="toggleProjectExpand('docqevrilo-expand', 'docqevrilo-read-more-btn')">
+                        <i class="fas fa-chevron-down"></i> Read more
+                    </button>
                 </div>
             </div>
         </div>

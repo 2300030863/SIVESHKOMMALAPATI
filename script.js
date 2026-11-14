@@ -229,16 +229,29 @@ function refillGoogleUserAfterSubmit() {
 function toggleInternshipExpand(expandId, btnId) {
     const expand = document.getElementById(expandId);
     const btn = document.getElementById(btnId);
+    if (!expand || !btn) return;
     const isOpen = expand.style.display !== 'none';
 
     if (isOpen) {
         expand.style.display = 'none';
         btn.innerHTML = '<i class="fas fa-chevron-down"></i> Read more';
+        const card = btn.closest('.project-card') || btn.closest('.timeline-item');
+        if (card) {
+            const rect = card.getBoundingClientRect();
+            if (rect.top < 80) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
     } else {
         expand.style.display = 'block';
         btn.innerHTML = '<i class="fas fa-chevron-up"></i> Read less';
     }
 }
+
+// Global alias for project cards or other expandable sections
+const toggleProjectExpand = toggleInternshipExpand;
+window.toggleProjectExpand = toggleInternshipExpand;
+window.toggleInternshipExpand = toggleInternshipExpand;
 
 // ==================== STATIC SUBTITLE ==================== //
 document.addEventListener('DOMContentLoaded', () => {

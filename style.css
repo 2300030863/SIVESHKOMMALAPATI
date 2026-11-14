@@ -1947,6 +1947,7 @@ section {
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     font-family: 'Inter', sans-serif;
+    align-self: flex-start;
 }
 
 .read-more-btn:hover {
@@ -1956,8 +1957,24 @@ section {
     transform: translateY(-1px);
 }
 
-.internship-expand {
+.internship-expand,
+.project-expand {
     overflow: hidden;
+}
+
+.project-expand[style*="display: block"] {
+    animation: projectExpandIn 0.35s ease-out;
+}
+
+@keyframes projectExpandIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ==================== CONTACT FORM / AI CHAT TERMINAL ==================== */
